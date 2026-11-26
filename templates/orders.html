@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Orders</h1><p>Track your purchases and sales orders.</p></div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="order-tabs">
+      {% for s in ['all','pending','placed','shipped','delivered','completed'] %}
+      <a href="{{ url_for('orders', status=s) }}" class="order-tab {% if status==s %}active{% endif %}">{{ s.title() }}</a>
+      {% endfor %}
+    </div>
+
+    <!-- My Orders (Purchases) -->
+    <div class="dash-panel" style="margin-bottom:24px">
+      <div class="dash-panel-header">
+        <h3>📦 My Purchases</h3>
+        <span class="badge badge-green">{{ my_orders|length }} orders</span>
+      </div>
+      {% if my_orders %}
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Product</th><th>Seller</th><th>Qty</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for order in my_orders %}
+            <tr>
+              <td>
+                <div class="product-cell">
+                  <div class="product-thumb" style="background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:18px">🌾</div>
+                  <div>
+                    <p style="font-weight:600;font-size:14px">{{ order.product.name }}</p>
+                    <p style="font-size:12px;color:var(--text-secondary)">{{ order.product.category }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ order.seller_rel.full_name }}<br><span style="font-size:12px;color:var(--text-secondary)">{{ order.seller_rel.location }}</span></td>
+              <td>{{ order.quantity }} {{ order.product.unit }}</td>
+              <td style="font-weight:700;color:var(--primary)">₹{{ "%.0f"|format(order.total_amount) }}</td>
+              <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+              <td><span class="badge status-{{ order.status }}">{{ order.status.title() }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:32px"><div class="empty-icon">📦</div><h3>No purchases found</h3></div>
+      {% endif %}
+    </div>
+
+    <!-- Received Orders (Sales) -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <h3>🏪 Orders Received</h3>
+        <span class="badge badge-green">{{ received_orders|length }} orders</span>
+      </div>
+      {% if received_orders %}
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Product</th><th>Buyer</th><th>Qty</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% for order in received_orders %}
+            <tr>
+              <td>
+                <div class="product-cell">
+                  <div class="product-thumb" style="background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:18px">🌾</div>
+                  <div>
+                    <p style="font-weight:600;font-size:14px">{{ order.product.name }}</p>
+                    <p style="font-size:12px;color:var(--text-secondary)">{{ order.product.category }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ order.buyer.full_name }}<br><span style="font-size:12px;color:var(--text-secondary)">{{ order.buyer.location }}</span></td>
+              <td>{{ order.quantity }} {{ order.product.unit }}</td>
+              <td style="font-weight:700;color:var(--primary)">₹{{ "%.0f"|format(order.total_amount) }}</td>
+              <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+              <td><span class="badge status-{{ order.status }}">{{ order.status.title() }}</span></td>
+              <td>
+                <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" style="display:flex;gap:4px">
+                  <select name="status" class="form-control" style="padding:4px 8px;font-size:12px;min-width:100px">
+                    {% for s in ['pending','placed','shipped','delivered','completed'] %}
+                    <option value="{{ s }}" {% if order.status==s %}selected{% endif %}>{{ s.title() }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:32px"><div class="empty-icon">🏪</div><h3>No orders received yet</h3><p>List your products on the marketplace to start receiving orders.</p></div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

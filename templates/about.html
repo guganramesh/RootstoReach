@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}About Us{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">{% endblock %}
+{% block content %}
+<div class="page-banner">
+  <div class="container">
+    <h1>About Roots to Reach</h1>
+    <p>Bridging the gap between traditional farming wisdom and global digital opportunities.</p>
+  </div>
+</div>
+
+<!-- Mission -->
+<section class="section bg-white">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <span class="section-label">Our Mission</span>
+        <h2 class="section-title" style="margin-bottom:20px">Empowering Farmers Digitally</h2>
+        <p style="font-size:16px;line-height:1.8;margin-bottom:16px">Traditional farmers possess invaluable knowledge accumulated over generations. Roots to Reach was built to give these farmers a digital voice — a platform where their wisdom reaches every corner of the world.</p>
+        <p style="font-size:16px;line-height:1.8;margin-bottom:24px">We believe that sustainable agriculture begins with connecting the right people: experienced farmers with passionate learners, and quality producers with conscious buyers.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:var(--bg-light);border-radius:12px;padding:20px;text-align:center">
+            <p style="font-size:2rem;font-weight:700;color:var(--primary)">10K+</p>
+            <p style="font-size:14px;color:var(--text-secondary)">Registered Farmers</p>
+          </div>
+          <div style="background:var(--bg-light);border-radius:12px;padding:20px;text-align:center">
+            <p style="font-size:2rem;font-weight:700;color:var(--primary)">50+</p>
+            <p style="font-size:14px;color:var(--text-secondary)">Countries Connected</p>
+          </div>
+          <div style="background:var(--bg-light);border-radius:12px;padding:20px;text-align:center">
+            <p style="font-size:2rem;font-weight:700;color:var(--primary)">5K+</p>
+            <p style="font-size:14px;color:var(--text-secondary)">Knowledge Posts</p>
+          </div>
+          <div style="background:var(--bg-light);border-radius:12px;padding:20px;text-align:center">
+            <p style="font-size:2rem;font-weight:700;color:var(--primary)">₹2Cr+</p>
+            <p style="font-size:14px;color:var(--text-secondary)">Transactions Done</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-img-wrap">
+        <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=700&q=80" alt="Farmer in field" style="width:100%;height:500px;object-fit:cover" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<section class="section" style="background:var(--bg-light)">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-label">Our Values</span>
+      <h2 class="section-title">What We Stand For</h2>
+    </div>
+    <div class="values-grid">
+      {% for icon, title, desc in [('🌱','Sustainability','We promote sustainable farming practices that protect the environment for future generations.'),('🤝','Community','Building strong communities where farmers support and learn from each other.'),('🌍','Global Reach','Connecting local farmers with global markets and opportunities.'),('💡','Innovation','Bringing modern digital tools to traditional farming practices.'),('🛡','Trust','A safe, verified platform where every farmer and buyer can transact with confidence.'),('❤️','Empowerment','Giving farmers the tools and visibility they deserve in the global economy.')] %}
+      <div class="value-card">
+        <div class="value-icon">{{ icon }}</div>
+        <h3 style="margin-bottom:8px">{{ title }}</h3>
+        <p style="font-size:14px">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Team -->
+<section class="section bg-white">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-label">Our Team</span>
+      <h2 class="section-title">The People Behind Roots to Reach</h2>
+    </div>
+    <div class="team-grid">
+      {% for name, role, bio in [('Arjun Sharma','Founder & CEO','Passionate about bringing digital transformation to rural India\'s farming communities.'),('Priya Nair','Head of Product','Designing intuitive experiences that work for farmers with minimal digital literacy.'),('Ramesh Yadav','Community Lead','Former farmer turned tech advocate, ensuring the platform speaks the farmer\'s language.')] %}
+      <div class="team-card">
+        <div class="team-avatar">{{ name[0] }}</div>
+        <h3 style="margin-bottom:4px">{{ name }}</h3>
+        <p style="font-size:13px;color:var(--primary);font-weight:600;margin-bottom:12px">{{ role }}</p>
+        <p style="font-size:13px">{{ bio }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Join the Movement</h2>
+    <p>Be part of a growing community of farmers transforming agriculture digitally.</p>
+    <div class="cta-actions">
+      <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg">Get Started Free</a>
+      <a href="{{ url_for('contact') }}" class="btn btn-secondary btn-lg">Contact Us</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

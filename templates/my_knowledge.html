@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}My Knowledge{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>My Knowledge</h1><p>Manage all your shared farming knowledge posts.</p></div>
+      <a href="{{ url_for('share_knowledge') }}" class="btn btn-primary btn-sm">+ Share New</a>
+    </div>
+    {% if posts %}
+    <div class="post-grid">
+      {% set imgs = ['https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500&q=80','https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&q=80','https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=80','https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500&q=80','https://images.unsplash.com/photo-1560493676-04071c5f467b?w=500&q=80','https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=500&q=80'] %}
+      {% for post in posts %}
+      {% set fallback = imgs[loop.index0 % imgs|length] %}
+      <div class="post-card">
+        <div class="post-card-img-wrap">
+          <img src="{{ get_img_url(post.image, fallback) }}" alt="{{ post.title }}" class="post-card-img" loading="lazy" onerror="this.src='{{ fallback }}'">
+        </div>
+        <div class="post-card-body">
+          <span class="post-category-tag">{{ post.category }}</span>
+          <h3 class="post-title">{{ post.title }}</h3>
+          <p class="post-desc">{{ post.description[:100] }}...</p>
+          <div class="post-stats" style="margin:10px 0;display:flex;gap:12px;font-size:12px;color:var(--text-secondary)">
+            <span>👁 {{ post.views }}</span>
+            <span>★ {{ "%.1f"|format(post.rating) }}</span>
+            <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:stretch">
+            <a href="{{ url_for('knowledge_detail', post_id=post.id) }}" class="btn btn-secondary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">View</a>
+            <a href="{{ url_for('edit_knowledge', post_id=post.id) }}" class="btn btn-primary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('delete_knowledge', post_id=post.id) }}" onsubmit="return confirm('Delete this post?')" style="flex:1;display:flex">
+              <button type="submit" class="btn btn-danger btn-sm" style="flex:1;justify-content:center">🗑 Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No knowledge posts yet</h3>
+      <p>Start sharing your farming wisdom with the world!</p>
+      <a href="{{ url_for('share_knowledge') }}" class="btn btn-primary" style="margin-top:16px">Share First Knowledge</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

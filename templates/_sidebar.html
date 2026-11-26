@@ -1,0 +1,35 @@
+<!-- Shared sidebar include -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+  <div class="sidebar-user">
+    <div class="sidebar-avatar-wrap">
+      <div class="sidebar-avatar">{{ user.full_name[0].upper() }}</div>
+      <div>
+        <p class="sidebar-user-name">{{ user.full_name }}</p>
+        <span class="sidebar-user-role">{{ user.role.title() }}</span>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint=='dashboard' %}active{% endif %}"><span class="link-icon">📊</span> Dashboard</a>
+    <div class="sidebar-section-label">Knowledge</div>
+    <a href="{{ url_for('knowledge_hub') }}" class="sidebar-link {% if request.endpoint=='knowledge_hub' %}active{% endif %}"><span class="link-icon">📚</span> Knowledge Hub</a>
+    <a href="{{ url_for('share_knowledge') }}" class="sidebar-link {% if request.endpoint=='share_knowledge' %}active{% endif %}"><span class="link-icon">✏️</span> Share Knowledge</a>
+    <a href="{{ url_for('my_knowledge') }}" class="sidebar-link {% if request.endpoint=='my_knowledge' %}active{% endif %}"><span class="link-icon">📝</span> My Knowledge</a>
+    <div class="sidebar-section-label">Market</div>
+    <a href="{{ url_for('marketplace') }}" class="sidebar-link {% if request.endpoint=='marketplace' %}active{% endif %}"><span class="link-icon">🛒</span> Market Connect</a>
+    <a href="{{ url_for('add_product') }}" class="sidebar-link {% if request.endpoint=='add_product' %}active{% endif %}"><span class="link-icon">➕</span> Add Product</a>
+    <a href="{{ url_for('my_products') }}" class="sidebar-link {% if request.endpoint=='my_products' %}active{% endif %}"><span class="link-icon">📋</span> My Products</a>
+    <a href="{{ url_for('orders') }}" class="sidebar-link {% if request.endpoint=='orders' %}active{% endif %}"><span class="link-icon">📦</span> My Orders</a>
+    <div class="sidebar-section-label">Account</div>
+    <a href="{{ url_for('messages') }}" class="sidebar-link {% if request.endpoint=='messages' %}active{% endif %}"><span class="link-icon">💬</span> Messages <span class="badge-dot"></span></a>
+    <a href="{{ url_for('profile', user_id=user.id) }}" class="sidebar-link {% if request.endpoint=='profile' %}active{% endif %}"><span class="link-icon">👤</span> Profile</a>
+    <a href="{{ url_for('settings') }}" class="sidebar-link {% if request.endpoint=='settings' %}active{% endif %}"><span class="link-icon">⚙️</span> Settings</a>
+    {% if user.role == 'admin' %}
+    <div class="sidebar-section-label">Admin</div>
+    <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="link-icon">🛡</span> Admin Panel</a>
+    {% endif %}
+  </nav>
+  <div class="sidebar-logout-wrap">
+    <a href="{{ url_for('logout') }}" class="sidebar-logout"><span>🚪</span> Logout</a>
+  </div>
+</aside>

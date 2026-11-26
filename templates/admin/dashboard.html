@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar-wrap">
+        <div class="sidebar-avatar">A</div>
+        <div><p class="sidebar-user-name">{{ user.full_name }}</p><span class="sidebar-user-role">Admin</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}"><span class="link-icon">📊</span> Dashboard</a>
+      <a href="{{ url_for('admin_users') }}" class="sidebar-link {% if request.endpoint=='admin_users' %}active{% endif %}"><span class="link-icon">👥</span> Manage Users</a>
+      <a href="{{ url_for('admin_contacts') }}" class="sidebar-link {% if request.endpoint=='admin_contacts' %}active{% endif %}"><span class="link-icon">📩</span> Contact Messages</a>
+      <a href="{{ url_for('knowledge_hub') }}" class="sidebar-link"><span class="link-icon">📚</span> Knowledge Posts</a>
+      <a href="{{ url_for('marketplace') }}" class="sidebar-link"><span class="link-icon">🛒</span> Products</a>
+      <a href="{{ url_for('orders') }}" class="sidebar-link"><span class="link-icon">📦</span> Orders</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link"><span class="link-icon">🏠</span> Main Dashboard</a>
+    </nav>
+    <div class="sidebar-logout-wrap">
+      <a href="{{ url_for('logout') }}" class="sidebar-logout"><span>🚪</span> Logout</a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Admin Dashboard</h1><p>Platform overview and management.</p></div>
+    </div>
+    <div class="admin-stats">
+      {% for icon, label, val, color in [('👥','Total Users', stats.users, 'blue'),('📚','Knowledge Posts', stats.posts, 'green'),('🛒','Products', stats.products, 'orange'),('📦','Total Orders', stats.orders, 'purple'),('📩','Contact Messages', stats.messages, 'green')] %}
+      <div class="stat-card">
+        <div class="stat-icon {{ color }}">{{ icon }}</div>
+        <div class="stat-info">
+          <p class="stat-label">{{ label }}</p>
+          <p class="stat-value">{{ val }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="admin-panel" style="margin-bottom:24px">
+      <div class="admin-panel-header">
+        <h3>📩 Recent Contact Messages</h3>
+        <a href="{{ url_for('admin_contacts') }}" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Status</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for m in contact_msgs %}
+            <tr style="{% if not m.is_read %}background:rgba(46,125,50,0.04){% endif %}">
+              <td><span class="badge {% if m.is_read %}badge-secondary{% else %}badge-green{% endif %}">{{ 'Read' if m.is_read else 'New' }}</span></td>
+              <td style="font-weight:600">{{ m.name }}</td>
+              <td style="font-size:13px">{{ m.email }}</td>
+              <td style="font-size:13px">{{ m.subject or '—' }}</td>
+              <td style="font-size:13px;max-width:200px">{{ m.message[:80] }}...</td>
+              <td style="font-size:12px">{{ m.created_at.strftime('%b %d') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-secondary)">No contact messages yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h3>Recent Users</h3>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Joined</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td><div class="product-cell"><div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ u.full_name[0] }}</div>{{ u.full_name }}</div></td>
+              <td>{{ u.email }}</td>
+              <td><span class="badge badge-green">{{ u.role.title() }}</span></td>
+              <td>{{ u.location or '—' }}</td>
+              <td>{{ u.created_at.strftime('%b %d, %Y') }}</td>
+              <td><span class="badge {% if u.is_active %}badge-success{% else %}badge-error{% endif %}">{{ 'Active' if u.is_active else 'Inactive' }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

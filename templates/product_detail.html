@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+{% set fallback_imgs = ['https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80','https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80','https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=800&q=80','https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80','https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80','https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800&q=80','https://images.unsplash.com/photo-1606914501449-5a96b6ce24ca?w=800&q=80','https://images.unsplash.com/photo-1543362906-acfc16c67564?w=800&q=80'] %}
+{% set main_img = get_img_url(product.image, fallback_imgs[product.id % fallback_imgs|length]) %}
+
+<div style="background:var(--bg-light);padding:16px 0;border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="breadcrumb" style="justify-content:flex-start">
+      <a href="{{ url_for('home') }}">Home</a><span>›</span>
+      <a href="{{ url_for('marketplace') }}">Marketplace</a><span>›</span>
+      <span style="color:var(--text-primary)">{{ product.name }}</span>
+    </div>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="product-detail-grid">
+      <!-- Gallery -->
+      <div class="product-gallery">
+        <img src="{{ main_img }}" alt="{{ product.name }}" class="product-main-img" id="mainProductImg" loading="lazy">
+        <div style="display:flex;gap:8px;margin-top:12px">
+          {% for i in range(4) %}
+          {% set thumb = get_img_url(product.image, fallback_imgs[(product.id + i) % fallback_imgs|length]) %}
+          <img src="{{ thumb }}" alt="View {{ i+1 }}"
+            style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid {% if i==0 %}var(--primary){% else %}var(--border){% endif %};cursor:pointer"
+            onclick="document.getElementById('mainProductImg').src=this.src;document.querySelectorAll('.thumb-img').forEach(t=>t.style.borderColor='var(--border)');this.style.borderColor='var(--primary)'"
+            class="thumb-img" loading="lazy">
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Info Panel -->
+      <div class="product-info-panel">
+        <span class="badge badge-green">{{ product.category }}</span>
+        <h1 class="product-detail-name" style="margin-top:12px">{{ product.name }}</h1>
+        <div style="display:flex;align-items:baseline;gap:8px;margin:12px 0">
+          <span class="product-detail-price">₹{{ "%.0f"|format(product.price) }}</span>
+          <span class="product-detail-unit">per {{ product.unit }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin:12px 0;font-size:14px;color:var(--text-secondary)">
+          <span>📦 Stock: <strong style="color:{% if product.stock > 0 %}var(--success){% else %}var(--error){% endif %}">{{ product.stock }} {{ product.unit }}</strong></span>
+          <span>✅ Verified Seller</span>
+        </div>
+        {% if product.description %}
+        <p style="font-size:15px;color:var(--text-secondary);margin:16px 0;line-height:1.7">{{ product.description }}</p>
+        {% endif %}
+
+        <!-- Seller Card -->
+        <div class="seller-mini-card">
+          <div class="seller-avatar">{{ product.seller.full_name[0] }}</div>
+          <div style="flex:1">
+            <a href="{{ url_for('profile', user_id=product.seller.id) }}" style="font-weight:700;font-size:15px;color:var(--text-primary)">{{ product.seller.full_name }}</a>
+            <p style="font-size:13px;color:var(--text-secondary)">📍 {{ product.seller.location or 'India' }}</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="{{ url_for('profile', user_id=product.seller.id) }}" class="btn btn-outline btn-sm">Profile</a>
+            {% if user and not is_owner %}
+            <form method="POST" action="{{ url_for('start_conversation', other_id=product.seller.id) }}">
+              <button type="submit" class="btn btn-primary btn-sm">💬 Chat</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if is_owner %}
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-secondary btn-full" style="flex:1;text-align:center">✏️ Edit Product</a>
+          <form method="POST" action="{{ url_for('delete_product', product_id=product.id) }}" onsubmit="return confirm('Delete this product?')" style="flex:1">
+            <button type="submit" class="btn btn-danger btn-full" style="width:100%">🗑 Delete</button>
+          </form>
+        </div>
+        {% elif user and not is_owner %}
+        <form method="POST" action="{{ url_for('place_order', product_id=product.id) }}">
+          <div style="margin:20px 0">
+            <label class="form-label">Quantity ({{ product.unit }})</label>
+            <div class="quantity-selector">
+              <button type="button" class="qty-btn" data-action="minus">−</button>
+              <input type="number" name="quantity" id="qtyInput" class="qty-input" value="1" min="1" max="{{ product.stock }}" readonly>
+              <button type="button" class="qty-btn" data-action="plus">+</button>
+              <span style="font-size:14px;color:var(--text-secondary)">Max: {{ product.stock }} {{ product.unit }}</span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full btn-lg" style="justify-content:center;text-align:center" {% if product.stock == 0 %}disabled{% endif %}>
+            🛒 {{ 'Place Order' if product.stock > 0 else 'Out of Stock' }}
+          </button>
+        </form>
+        {% elif not user %}
+        <div style="margin-top:20px">
+          <a href="{{ url_for('login') }}" class="btn btn-primary btn-full btn-lg" style="justify-content:center;text-align:center">Login to Order</a>
+        </div>
+        {% endif %}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+          <div style="font-size:13px;color:var(--text-secondary)">✅ Quality Assured</div>
+          <div style="font-size:13px;color:var(--text-secondary)">🚚 Direct from Farm</div>
+          <div style="font-size:13px;color:var(--text-secondary)">🌿 Organically Grown</div>
+          <div style="font-size:13px;color:var(--text-secondary)">💬 24/7 Support</div>
+        </div>
+      </div>
+    </div>
+
+    {% if related %}
+    <div style="margin-top:56px">
+      <h2 style="margin-bottom:28px;font-size:1.5rem">Related Products</h2>
+      <div class="market-grid">
+        {% set rp_imgs = ['https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80','https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80','https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=500&q=80','https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&q=80'] %}
+        {% for rp in related %}
+        <a href="{{ url_for('product_detail', product_id=rp.id) }}" class="market-card">
+          <div class="market-card-img-wrap">
+            <img src="{{ get_img_url(rp.image, rp_imgs[loop.index0 % rp_imgs|length]) }}" alt="{{ rp.name }}" class="market-card-img" loading="lazy">
+          </div>
+          <div class="market-card-body">
+            <p class="market-product-name">{{ rp.name }}</p>
+            <div class="market-location">📍 {{ rp.seller.location or 'India' }}</div>
+            <div class="market-footer">
+              <span class="market-price">₹{{ "%.0f"|format(rp.price) }}</span>
+              <span class="badge badge-green">View</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

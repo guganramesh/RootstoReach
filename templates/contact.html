@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div class="page-banner">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>Have questions? We'd love to hear from you.</p>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" class="about-grid">
+      <!-- Form -->
+      <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px">
+        <h2 style="margin-bottom:8px;font-size:1.4rem">Send us a Message</h2>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:24px">All fields marked * are required.</p>
+        <form method="POST" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" name="name" class="form-control" placeholder="Your full name" required
+                     value="{{ user.full_name if user else '' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input type="email" name="email" class="form-control" placeholder="your@email.com" required
+                     value="{{ user.email if user else '' }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select name="subject" class="form-control">
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="Partnership">Partnership</option>
+              <option value="Report an Issue">Report an Issue</option>
+              <option value="Farmer Onboarding">Farmer Onboarding</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message *</label>
+            <textarea name="message" class="form-control" rows="6"
+              placeholder="Write your message here..." required
+              minlength="10"></textarea>
+            <p class="form-hint">Minimum 10 characters required.</p>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full btn-lg">Send Message</button>
+        </form>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <h2 style="margin-bottom:24px;font-size:1.4rem">Get in Touch</h2>
+        <p style="font-size:16px;line-height:1.8;margin-bottom:32px">We're here to help farmers and buyers get the most out of Roots to Reach. Reach out to us anytime.</p>
+        {% for icon, title, val in [('📧','Email','support@rootstoreach.com'),('📱','Phone','+91 98765 43210'),('📍','Address','New Delhi, India'),('🕒','Working Hours','Mon–Fri, 9am–6pm IST')] %}
+        <div style="display:flex;gap:16px;margin-bottom:24px;align-items:flex-start">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(46,125,50,0.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">{{ icon }}</div>
+          <div>
+            <p style="font-weight:600;font-size:15px">{{ title }}</p>
+            <p style="font-size:14px;color:var(--text-secondary)">{{ val }}</p>
+          </div>
+        </div>
+        {% endfor %}
+
+        <div style="background:linear-gradient(135deg,#0D3B1E,#2E7D32);border-radius:var(--radius-lg);padding:28px;color:white;margin-top:24px">
+          <h3 style="color:white;margin-bottom:8px">🌱 Join our Community</h3>
+          <p style="color:rgba(255,255,255,0.8);font-size:14px">Connect with 10,000+ farmers on our platform and grow together.</p>
+          <a href="{{ url_for('signup') }}" class="btn btn-primary" style="margin-top:16px;background:white;color:var(--primary)">Sign Up Free</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

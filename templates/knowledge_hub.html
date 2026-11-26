@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Hub{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+{% set post_imgs = ['https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500&q=80','https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&q=80','https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=80','https://images.unsplash.com/photo-1592982537447-6f2a6a0c8b1f?w=500&q=80','https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500&q=80','https://images.unsplash.com/photo-1560493676-04071c5f467b?w=500&q=80','https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=500&q=80','https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&q=80','https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=500&q=80'] %}
+
+<div class="page-banner">
+  <div class="container">
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a><span>›</span><span>Knowledge Hub</span></div>
+    <h1>🌿 Knowledge Hub</h1>
+    <p>Discover traditional farming wisdom from experienced farmers around the world.</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="container">
+    <div class="filter-bar-inner">
+      <form method="GET" style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap">
+        <div class="search-bar-wrap" style="max-width:360px">
+          <input type="text" name="search" value="{{ search }}" placeholder="Search knowledge, skills, topics..." aria-label="Search knowledge">
+          <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          {% for cat in ['all','Organic Farming','Irrigation','Soil Management','Crop Care','Pest Control','Seed Saving','Sustainable Farming','Water Conservation'] %}
+          <a href="{{ url_for('knowledge_hub', category=cat, search=search) }}" class="filter-btn {% if category==cat %}active{% endif %}">
+            {{ 'All' if cat=='all' else cat }}
+          </a>
+          {% endfor %}
+        </div>
+      </form>
+      {% if user %}<a href="{{ url_for('share_knowledge') }}" class="btn btn-primary btn-sm" style="white-space:nowrap">+ Share Knowledge</a>{% endif %}
+    </div>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    {% if posts.items %}
+    <div class="post-grid">
+      {% for post in posts.items %}
+      {% set fallback = post_imgs[loop.index0 % post_imgs|length] %}
+      {% set img_src = get_img_url(post.image, fallback) %}
+      <div class="post-card" style="position:relative;display:flex;flex-direction:column">
+        <a href="{{ url_for('knowledge_detail', post_id=post.id) }}" style="flex:1;text-decoration:none;color:inherit;display:flex;flex-direction:column">
+          <div class="post-card-img-wrap">
+            <img src="{{ img_src }}" alt="{{ post.title }}" class="post-card-img" loading="lazy"
+                 onerror="this.src='{{ fallback }}'">
+          </div>
+          <div class="post-card-body" style="flex:1">
+            <span class="post-category-tag">{{ post.category }}</span>
+            <h3 class="post-title">{{ post.title }}</h3>
+            <p class="post-desc">{{ post.description[:120] }}...</p>
+            <div class="post-footer">
+              <div class="post-author">
+                <div class="author-avatar">{{ post.author.full_name[0] }}</div>
+                <div>
+                  <p class="post-author-name">{{ post.author.full_name }}</p>
+                  <p class="post-author-loc">📍 {{ post.author.location or 'India' }}</p>
+                </div>
+              </div>
+              <div class="post-stats">
+                <span class="post-rating"><span class="stars">★</span> {{ "%.1f"|format(post.rating) }}</span>
+                <span>👁 {{ post.views }}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% if user and user.id == post.user_id %}
+        <div style="display:flex;gap:8px;padding:0 16px 14px;align-items:stretch">
+          <a href="{{ url_for('edit_knowledge', post_id=post.id) }}" class="btn btn-secondary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">✏️ Edit</a>
+          <form method="POST" action="{{ url_for('delete_knowledge', post_id=post.id) }}" onsubmit="return confirm('Delete this post?')" style="flex:1;display:flex">
+            <button type="submit" class="btn btn-danger btn-sm" style="flex:1;justify-content:center">🗑 Delete</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if posts.pages > 1 %}
+    <div class="pagination">
+      {% if posts.has_prev %}<a href="{{ url_for('knowledge_hub', page=posts.prev_num, category=category, search=search) }}" class="page-btn">‹</a>{% endif %}
+      {% for p in posts.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+        {% if p %}<a href="{{ url_for('knowledge_hub', page=p, category=category, search=search) }}" class="page-btn {% if p==posts.page %}active{% endif %}">{{ p }}</a>
+        {% else %}<span class="page-btn" style="border:none;pointer-events:none">…</span>{% endif %}
+      {% endfor %}
+      {% if posts.has_next %}<a href="{{ url_for('knowledge_hub', page=posts.next_num, category=category, search=search) }}" class="page-btn">›</a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if posts.items and posts.has_next %}
+    <div style="text-align:center;margin-top:32px">
+      <a href="{{ url_for('knowledge_hub', page=posts.next_num, category=category, search=search) }}" class="btn btn-secondary btn-lg">Load More</a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <h3>No knowledge posts found</h3>
+      <p>Try a different search or category.</p>
+      {% if user %}<a href="{{ url_for('share_knowledge') }}" class="btn btn-primary" style="margin-top:16px">Share First Knowledge</a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

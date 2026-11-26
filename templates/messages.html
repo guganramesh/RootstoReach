@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Messages</h1><p>Chat with farmers and buyers worldwide.</p></div>
+      <!-- New Chat Button -->
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('newChatModal').style.display='flex'">
+        + New Chat
+      </button>
+    </div>
+
+    <div class="messages-layout">
+      <!-- ── Conversations List ── -->
+      <div class="conv-list">
+        <div class="conv-list-header">
+          <span>Conversations</span>
+          <span class="badge badge-green">{{ conversations|length }}</span>
+        </div>
+        {% for conv in conversations %}
+          {% set other = conv.user2 if conv.user1_id == user.id else conv.user1 %}
+          {% set last_msg = conv.messages[-1] if conv.messages else none %}
+          {% set unread = conv.messages|selectattr('sender_id','ne',user.id)|selectattr('is_read','equalto',False)|list|length %}
+          <a href="{{ url_for('messages', conv=conv.id) }}"
+             class="conv-item {% if active_conv and active_conv.id == conv.id %}active{% endif %}">
+            <div class="conv-avatar" style="background:hsl({{ loop.index0 * 47 }},55%,45%)">
+              {{ other.full_name[0].upper() }}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="conv-name">{{ other.full_name }}</span>
+                {% if last_msg %}
+                <span class="conv-time">{{ last_msg.created_at.strftime('%H:%M') }}</span>
+                {% endif %}
+              </div>
+              <p class="conv-preview" style="font-size:12px;color:var(--text-secondary)">
+                {{ other.location or other.role.title() }}
+              </p>
+              {% if last_msg %}
+              <p class="conv-preview">{{ last_msg.content[:38] }}{% if last_msg.content|length > 38 %}...{% endif %}</p>
+              {% endif %}
+            </div>
+            {% if unread > 0 %}
+            <span style="width:18px;height:18px;border-radius:50%;background:var(--primary);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{ unread }}</span>
+            {% endif %}
+          </a>
+        {% else %}
+          <div class="empty-state" style="padding:32px 16px">
+            <div class="empty-icon">💬</div>
+            <h3 style="font-size:14px">No conversations yet</h3>
+            <p style="font-size:12px">Click "New Chat" to start messaging.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- ── Chat Area ── -->
+      <div class="chat-area">
+        {% if active_conv %}
+          {% set other = active_conv.user2 if active_conv.user1_id == user.id else active_conv.user1 %}
+          <div class="chat-header">
+            <div class="conv-avatar" style="background:var(--primary)">{{ other.full_name[0].upper() }}</div>
+            <div style="flex:1">
+              <p class="chat-header-name">{{ other.full_name }}</p>
+              <p style="font-size:12px;color:var(--text-secondary)">📍 {{ other.location or other.role.title() }}</p>
+            </div>
+            <a href="{{ url_for('profile', user_id=other.id) }}" class="btn btn-outline btn-sm">View Profile</a>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            {% for msg in chat_messages %}
+            <div class="chat-msg {% if msg.sender_id == user.id %}mine{% else %}theirs{% endif %}">
+              <div class="chat-bubble">{{ msg.content }}</div>
+              <p class="chat-time">{{ msg.created_at.strftime('%b %d, %H:%M') }}</p>
+            </div>
+            {% else %}
+            <div style="text-align:center;color:var(--text-secondary);font-size:14px;padding:40px 24px">
+              <div style="font-size:48px;margin-bottom:12px">👋</div>
+              Start the conversation with {{ other.full_name.split()[0] }}!
+            </div>
+            {% endfor %}
+          </div>
+
+          <form class="chat-input-area" method="POST" action="{{ url_for('send_message') }}">
+            <input type="hidden" name="conversation_id" value="{{ active_conv.id }}">
+            <textarea name="content" class="chat-input" placeholder="Type a message..." rows="1" required
+                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.submit()}"></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
+          </form>
+
+        {% else %}
+          <div class="chat-empty">
+            <div class="chat-empty-icon">💬</div>
+            <h3>Select a conversation</h3>
+            <p style="font-size:14px;text-align:center;max-width:280px">
+              Choose a conversation from the list, or click <strong>+ New Chat</strong> to start messaging someone.
+            </p>
+            <button class="btn btn-primary" onclick="document.getElementById('newChatModal').style.display='flex'">
+              + Start New Chat
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+<!-- ── New Chat Modal ── -->
+<div id="newChatModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:480px;max-height:90vh;overflow:hidden;box-shadow:var(--shadow-lg);margin:16px">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:1rem">Start New Conversation</h3>
+      <button onclick="document.getElementById('newChatModal').style.display='none'" style="font-size:22px;color:var(--text-secondary);cursor:pointer;background:none;border:none">&times;</button>
+    </div>
+    <div style="padding:16px 24px">
+      <input type="text" id="userSearch" placeholder="Search by name or location..."
+             class="form-control" style="margin-bottom:12px"
+             oninput="filterUsers(this.value)">
+    </div>
+    <div style="overflow-y:auto;max-height:400px;padding:0 16px 16px" id="userList">
+      {% for u in all_users %}
+      <form method="POST" action="{{ url_for('start_conversation', other_id=u.id) }}"
+            class="user-chat-item"
+            data-name="{{ u.full_name|lower }}" data-loc="{{ (u.location or '')|lower }}">
+        <button type="submit" style="width:100%;background:none;border:none;cursor:pointer;text-align:left">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-md);transition:background 0.2s"
+               onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='none'">
+            <div style="width:44px;height:44px;border-radius:50%;background:hsl({{ loop.index0 * 53 }},55%,45%);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0">
+              {{ u.full_name[0].upper() }}
+            </div>
+            <div style="flex:1">
+              <p style="font-weight:600;font-size:14px;color:var(--text-primary)">{{ u.full_name }}</p>
+              <p style="font-size:12px;color:var(--text-secondary)">{{ u.location or u.role.title() }}</p>
+            </div>
+            <span class="badge badge-green" style="font-size:11px">{{ u.role.title() }}</span>
+          </div>
+        </button>
+      </form>
+      {% else %}
+      <p style="text-align:center;color:var(--text-secondary);padding:24px">No other users found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+function filterUsers(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.user-chat-item').forEach(item => {
+    const match = item.dataset.name.includes(q) || item.dataset.loc.includes(q);
+    item.style.display = match ? 'block' : 'none';
+  });
+}
+// Close modal on backdrop click
+document.getElementById('newChatModal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+</script>
+{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+{% endblock %}
+{% block content %}
+<div class="auth-layout">
+  <!-- Form Side -->
+  <div class="auth-form-side">
+    <a href="{{ url_for('home') }}" class="auth-logo">🌱 Roots to Reach</a>
+    <h1 class="auth-title">Create Your Account</h1>
+    <p class="auth-subtitle">Join our community of farmers and grow together.</p>
+
+    <form method="POST" action="{{ url_for('signup') }}" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="full_name">Full Name <span style="color:var(--error)">*</span></label>
+        <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Enter your full name" required autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address <span style="color:var(--error)">*</span></label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="skills">Skills / Expertise</label>
+        <input type="text" id="skillsInput" name="skills" class="form-control" placeholder="e.g., Organic Farming, Irrigation">
+        <div class="skills-tags" style="margin-top:8px">
+          {% for skill in ['Organic Farming','Irrigation','Soil Management','Crop Care','Pest Control','Seed Saving','Water Conservation','Traditional Farming'] %}
+          <span class="skill-tag" data-skill="{{ skill }}">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="location">Location</label>
+        <input type="text" id="location" name="location" class="form-control" placeholder="Village, District, State" autocomplete="address-level2">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter mobile number" autocomplete="tel">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password <span style="color:var(--error)">*</span></label>
+        <div class="password-toggle">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required minlength="6" autocomplete="new-password">
+          <span class="pwd-eye" role="button" aria-label="Toggle password">👁</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="confirm_password">Confirm Password <span style="color:var(--error)">*</span></label>
+        <div class="password-toggle">
+          <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your password" required autocomplete="new-password">
+          <span class="pwd-eye" role="button" aria-label="Toggle password">👁</span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Sign Up</button>
+    </form>
+    <p class="auth-footer">Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+  </div>
+
+  <!-- Sidebar Illustration -->
+  <div class="auth-sidebar">
+    <div class="auth-sidebar-illustration">🧑‍🌾</div>
+    <h2>Be a Part of Something Bigger</h2>
+    <p>Share your knowledge, connect with the world, and empower farming communities.</p>
+    <div style="margin-top:32px;display:flex;flex-direction:column;gap:14px;text-align:left;max-width:300px">
+      <div style="display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px">
+        <span style="font-size:24px">📚</span>
+        <div><p style="color:white;font-weight:600;font-size:14px">Share Knowledge</p><p style="font-size:12px;color:rgba(255,255,255,0.7)">Post your farming techniques</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px">
+        <span style="font-size:24px">🌍</span>
+        <div><p style="color:white;font-weight:600;font-size:14px">Global Connections</p><p style="font-size:12px;color:rgba(255,255,255,0.7)">Connect with buyers worldwide</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px">
+        <span style="font-size:24px">💰</span>
+        <div><p style="color:white;font-weight:600;font-size:14px">Grow Your Income</p><p style="font-size:12px;color:rgba(255,255,255,0.7)">Sell directly to global markets</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

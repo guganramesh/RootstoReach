@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div style="background:var(--bg-light);padding:16px 0;border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="breadcrumb" style="justify-content:flex-start">
+      <a href="{{ url_for('home') }}">Home</a><span>›</span>
+      <a href="{{ url_for('knowledge_hub') }}">Knowledge Hub</a><span>›</span>
+      <span style="color:var(--text-primary)">{{ post.title[:40] }}...</span>
+    </div>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="detail-layout">
+      <!-- Main Content -->
+      <div class="detail-main">
+        {% set imgs = ['https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80','https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&q=80','https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=900&q=80','https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=80','https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=80','https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=900&q=80'] %}
+        <img src="{{ imgs[post.id % imgs|length] }}" alt="{{ post.title }}" class="detail-banner" loading="lazy">
+
+        <div class="detail-meta">
+          <span class="badge badge-green">{{ post.category }}</span>
+          <span style="font-size:13px;color:var(--text-secondary)">👁 {{ post.views }} views</span>
+          <span class="stars">★ {{ "%.1f"|format(post.rating) }}</span>
+          <span style="font-size:13px;color:var(--text-secondary)">📅 {{ post.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+
+        <h1 class="detail-title">{{ post.title }}</h1>
+
+        <!-- Author Card -->
+        <div class="detail-author-card">
+          <div class="author-avatar" style="width:48px;height:48px;font-size:1.2rem">{{ post.author.full_name[0] }}</div>
+          <div>
+            <a href="{{ url_for('profile', user_id=post.author.id) }}" style="font-weight:700;font-size:15px;color:var(--text-primary)">{{ post.author.full_name }}</a>
+            <p style="font-size:13px;color:var(--text-secondary)">📍 {{ post.author.location or 'India' }} · {{ post.author.skills or 'Farmer' }}</p>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <button class="action-btn" onclick="this.classList.toggle('liked');this.querySelector('span').textContent=this.classList.contains('liked')?'❤️':'🤍'">
+            <span>🤍</span> Like ({{ post.likes }})
+          </button>
+          <button class="action-btn">🔖 Bookmark</button>
+          <button class="action-btn" onclick="navigator.share?navigator.share({title:'{{ post.title }}',url:window.location.href}):alert('Link copied!')">🔗 Share</button>
+          {% if is_owner %}
+          <a href="{{ url_for('edit_knowledge', post_id=post.id) }}" class="action-btn" style="text-decoration:none">✏️ Edit</a>
+          <form method="POST" action="{{ url_for('delete_knowledge', post_id=post.id) }}" onsubmit="return confirm('Delete this post?')" style="margin:0">
+            <button type="submit" class="action-btn" style="color:var(--error);border-color:var(--error)">🗑 Delete</button>
+          </form>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="detail-content">
+          <p>{{ post.description }}</p>
+
+          {% if post.materials %}
+          <h3>🧰 Materials Needed</h3>
+          <div class="materials-list">
+            {% for m in post.materials.split(',') %}
+            <span class="material-tag">{{ m.strip() }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% if post.steps %}
+          <h3>📋 Step-by-Step Guide</h3>
+          <ol class="steps-list">
+            {% for step in post.steps.split('\n') %}
+            {% if step.strip() %}<li>{{ step.strip().lstrip('0123456789. ') }}</li>{% endif %}
+            {% endfor %}
+          </ol>
+          {% endif %}
+
+          {% if post.tips %}
+          <div class="tips-box">
+            <h4>💡 Tips & Best Practices</h4>
+            {% for tip in post.tips.split('\n') %}
+            {% if tip.strip() %}<p style="font-size:14px;margin-bottom:8px;color:var(--text-primary)">• {{ tip.strip() }}</p>{% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="detail-sidebar">
+        <!-- Author Info -->
+        <div class="sidebar-card">
+          <h4>About the Author</h4>
+          <div style="text-align:center;padding:8px 0">
+            <div class="author-avatar" style="width:64px;height:64px;font-size:1.5rem;margin:0 auto 12px">{{ post.author.full_name[0] }}</div>
+            <p style="font-weight:700;font-size:15px">{{ post.author.full_name }}</p>
+            <p style="font-size:13px;color:var(--text-secondary)">📍 {{ post.author.location or 'India' }}</p>
+            <p style="font-size:13px;color:var(--text-secondary);margin-top:8px">{{ post.author.bio[:100] if post.author.bio else 'Experienced traditional farmer.' }}</p>
+            <a href="{{ url_for('profile', user_id=post.author.id) }}" class="btn btn-secondary btn-sm btn-full" style="margin-top:16px">View Profile</a>
+          </div>
+        </div>
+
+        <!-- Related Posts -->
+        {% if related %}
+        <div class="sidebar-card">
+          <h4>Related Articles</h4>
+          {% for r in related %}
+          <a href="{{ url_for('knowledge_detail', post_id=r.id) }}" class="related-post-item">
+            <div class="related-post-img" style="background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:24px">🌿</div>
+            <div>
+              <p class="related-post-title">{{ r.title }}</p>
+              <p class="related-post-cat">{{ r.category }}</p>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Share this -->
+        <div class="sidebar-card">
+          <h4>Share this Knowledge</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://wa.me/?text={{ post.title | urlencode }}" target="_blank" class="btn btn-outline btn-sm">📱 WhatsApp</a>
+            <a href="https://twitter.com/intent/tweet?text={{ post.title | urlencode }}&url={{ request.url | urlencode }}" target="_blank" class="btn btn-outline btn-sm">𝕏 Twitter</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

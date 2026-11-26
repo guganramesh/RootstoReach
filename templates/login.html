@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-form-side">
+    <a href="{{ url_for('home') }}" class="auth-logo">🌱 Roots to Reach</a>
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-subtitle">Sign in to your account and continue your journey.</p>
+    <form method="POST" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-toggle">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+          <span class="pwd-eye" role="button">👁</span>
+        </div>
+      </div>
+      <div class="remember-row">
+        <label class="remember-label"><input type="checkbox" name="remember_me"> Remember me</label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+    </form>
+    <div class="auth-divider">Demo Accounts</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="background:var(--bg-light);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--text-secondary)">🧑🌾 <strong>Farmer:</strong> ramesh@example.com / farmer123</div>
+      <div style="background:var(--bg-light);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--text-secondary)">🛒 <strong>Buyer:</strong> hans@example.com / buyer123</div>
+      <div style="background:var(--bg-light);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--text-secondary)">🛡 <strong>Admin:</strong> admin@rootstoreach.com / admin123</div>
+    </div>
+    <p class="auth-footer" style="margin-top:20px">Don't have an account? <a href="{{ url_for('signup') }}">Create Account</a></p>
+  </div>
+  <div class="auth-sidebar">
+    <div class="auth-sidebar-illustration">🌾</div>
+    <h2>Welcome Back to the Community</h2>
+    <p>Thousands of farmers are waiting to connect, learn, and grow with you.</p>
+    <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:300px">
+      <div style="text-align:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:20px 12px">
+        <p style="font-size:1.8rem;font-weight:700;color:white">10K+</p>
+        <p style="font-size:12px;color:rgba(255,255,255,0.7)">Active Farmers</p>
+      </div>
+      <div style="text-align:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:20px 12px">
+        <p style="font-size:1.8rem;font-weight:700;color:white">50+</p>
+        <p style="font-size:12px;color:rgba(255,255,255,0.7)">Countries</p>
+      </div>
+      <div style="text-align:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:20px 12px">
+        <p style="font-size:1.8rem;font-weight:700;color:white">5K+</p>
+        <p style="font-size:12px;color:rgba(255,255,255,0.7)">Knowledge Posts</p>
+      </div>
+      <div style="text-align:center;background:rgba(255,255,255,0.1);border-radius:12px;padding:20px 12px">
+        <p style="font-size:1.8rem;font-weight:700;color:white">₹2Cr+</p>
+        <p style="font-size:12px;color:rgba(255,255,255,0.7)">Transactions</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}

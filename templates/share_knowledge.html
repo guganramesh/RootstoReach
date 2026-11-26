@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Share Knowledge{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div>
+        <h1>Share Knowledge</h1>
+        <p>Share your farming experience and help farmers around the world.</p>
+      </div>
+      <a href="{{ url_for('my_knowledge') }}" class="btn btn-outline btn-sm">← My Knowledge</a>
+    </div>
+
+    <div class="share-layout">
+      <!-- Form -->
+      <div>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px">
+            <div class="form-group">
+              <label class="form-label">Title <span style="color:var(--error)">*</span></label>
+              <input type="text" name="title" class="form-control" placeholder="Enter a descriptive title" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category <span style="color:var(--error)">*</span></label>
+              <select name="category" class="form-control" required>
+                <option value="">Select category</option>
+                {% for cat in ['Organic Farming','Irrigation','Soil Management','Crop Care','Pest Control','Seed Saving','Sustainable Farming','Water Conservation','Traditional Farming','Crop Rotation'] %}
+                <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description <span style="color:var(--error)">*</span></label>
+              <textarea name="description" class="form-control" rows="5" placeholder="Write your knowledge in detail..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Materials Needed</label>
+              <input type="text" name="materials" class="form-control" placeholder="e.g., Cow dung, Neem leaves, Water (comma separated)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Step-by-Step Guide</label>
+              <textarea name="steps" class="form-control" rows="6" placeholder="1. First step&#10;2. Second step&#10;3. Third step..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tips & Best Practices</label>
+              <textarea name="tips" class="form-control" rows="4" placeholder="Share helpful tips..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Images (Optional)</label>
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-zone-icon">📷</div>
+                <p>Upload Images</p>
+                <span>or drag and drop<br>You can upload up to 5 images</span>
+                <input type="file" name="image" id="imageUpload" accept="image/*" style="display:none">
+              </div>
+              <div class="upload-preview" id="uploadPreview"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">Submit Knowledge</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tips Sidebar -->
+      <div>
+        <div class="share-tips-card">
+          <h4>💡 Tips for a Great Post</h4>
+          <div class="share-tip-item">Share what worked best for you.</div>
+          <div class="share-tip-item">Include step-by-step details.</div>
+          <div class="share-tip-item">Add clear images if possible.</div>
+          <div class="share-tip-item">Help others grow and succeed.</div>
+          <div class="share-tip-item">Mention local materials used.</div>
+          <div class="share-tip-item">Describe the season & climate.</div>
+          <div class="share-illustration">🧑🌾</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

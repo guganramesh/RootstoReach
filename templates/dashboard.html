@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar-wrap">
+        <div class="sidebar-avatar">{{ user.full_name[0].upper() }}</div>
+        <div>
+          <p class="sidebar-user-name">{{ user.full_name }}</p>
+          <span class="sidebar-user-role">{{ user.role.title() }}</span>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link active"><span class="link-icon">📊</span> Dashboard</a>
+      <div class="sidebar-section-label">Knowledge</div>
+      <a href="{{ url_for('knowledge_hub') }}" class="sidebar-link"><span class="link-icon">📚</span> Knowledge Hub</a>
+      <a href="{{ url_for('share_knowledge') }}" class="sidebar-link"><span class="link-icon">✏️</span> Share Knowledge</a>
+      <a href="{{ url_for('my_knowledge') }}" class="sidebar-link"><span class="link-icon">📝</span> My Knowledge</a>
+      <div class="sidebar-section-label">Market</div>
+      <a href="{{ url_for('marketplace') }}" class="sidebar-link"><span class="link-icon">🛒</span> Market Connect</a>
+      <a href="{{ url_for('add_product') }}" class="sidebar-link"><span class="link-icon">➕</span> Add Product</a>
+      <a href="{{ url_for('orders') }}" class="sidebar-link"><span class="link-icon">📦</span> My Orders</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="{{ url_for('messages') }}" class="sidebar-link"><span class="link-icon">💬</span> Messages <span class="badge-dot"></span></a>
+      <a href="{{ url_for('profile', user_id=user.id) }}" class="sidebar-link"><span class="link-icon">👤</span> Profile</a>
+      <a href="{{ url_for('settings') }}" class="sidebar-link"><span class="link-icon">⚙️</span> Settings</a>
+      {% if user.role == 'admin' %}
+      <div class="sidebar-section-label">Admin</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="link-icon">🛡</span> Admin Panel</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-logout-wrap">
+      <a href="{{ url_for('logout') }}" class="sidebar-logout"><span>🚪</span> Logout</a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Main -->
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Welcome back, {{ user.full_name.split()[0] }}! Here's what's happening.</p>
+      </div>
+      <a href="{{ url_for('share_knowledge') }}" class="btn btn-primary btn-sm">+ Share Knowledge</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon green">📚</div>
+        <div class="stat-info">
+          <p class="stat-label">Knowledge Shared</p>
+          <p class="stat-value" data-target="{{ user.knowledge_count }}">{{ user.knowledge_count }}</p>
+          <p class="stat-change up">↑ Active posts</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">🤝</div>
+        <div class="stat-info">
+          <p class="stat-label">Connections</p>
+          <p class="stat-value" data-target="23">23</p>
+          <p class="stat-change up">↑ Global network</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">📦</div>
+        <div class="stat-info">
+          <p class="stat-label">Orders Received</p>
+          <p class="stat-value" data-target="{{ user.orders_count }}">{{ user.orders_count }}</p>
+          <p class="stat-change up">↑ This month</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">💰</div>
+        <div class="stat-info">
+          <p class="stat-label">Total Earnings</p>
+          <p class="stat-value">₹{{ "%.0f"|format(user.total_earnings) }}</p>
+          <p class="stat-change up">↑ Growing</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity + Quick Actions -->
+    <div class="dash-grid">
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <h3>Recent Activity</h3>
+          <a href="{{ url_for('notifications') if false else '#' }}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="dash-panel-body">
+          <div class="activity-list">
+            {% for notif in notifications %}
+            <div class="activity-item">
+              <div class="activity-dot {{ notif.type }}">
+                {{ '❤️' if notif.type=='like' else '📦' if notif.type=='order' else '🔗' if notif.type=='connect' else '🔁' }}
+              </div>
+              <div class="activity-text">
+                <p>{{ notif.message }}</p>
+                <span>{{ notif.time_ago }}</span>
+              </div>
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding:32px 0">
+              <div class="empty-icon">🔔</div>
+              <h3>No recent activity</h3>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel-header"><h3>Quick Actions</h3></div>
+        <div class="dash-panel-body">
+          <div class="quick-actions-grid">
+            <a href="{{ url_for('share_knowledge') }}" class="quick-action">
+              <div class="quick-action-left"><span class="quick-action-icon">✏️</span><span class="quick-action-label">Share Knowledge</span></div>
+              <span class="quick-action-arrow">›</span>
+            </a>
+            <a href="{{ url_for('marketplace') }}" class="quick-action">
+              <div class="quick-action-left"><span class="quick-action-icon">🛒</span><span class="quick-action-label">Browse Market</span></div>
+              <span class="quick-action-arrow">›</span>
+            </a>
+            <a href="{{ url_for('orders') }}" class="quick-action">
+              <div class="quick-action-left"><span class="quick-action-icon">📦</span><span class="quick-action-label">View Orders</span></div>
+              <span class="quick-action-arrow">›</span>
+            </a>
+            <a href="{{ url_for('settings') }}" class="quick-action">
+              <div class="quick-action-left"><span class="quick-action-icon">👤</span><span class="quick-action-label">Update Profile</span></div>
+              <span class="quick-action-arrow">›</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    {% if recent_orders %}
+    <div class="dash-panel" style="margin-top:24px">
+      <div class="dash-panel-header">
+        <h3>Recent Orders</h3>
+        <a href="{{ url_for('orders') }}" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Product</th><th>Buyer</th><th>Qty</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr>
+              <td><div class="product-cell"><div class="product-thumb" style="background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:20px">🌾</div>{{ order.product.name }}</div></td>
+              <td>{{ order.buyer.full_name }}</td>
+              <td>{{ order.quantity }} kg</td>
+              <td>₹{{ "%.0f"|format(order.total_amount) }}</td>
+              <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
+              <td><span class="badge status-{{ order.status }}">{{ order.status.title() }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </main>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

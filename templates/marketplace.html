@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Marketplace{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+{% set fallback_imgs = ['https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80','https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80','https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=500&q=80','https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&q=80','https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80','https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=500&q=80','https://images.unsplash.com/photo-1606914501449-5a96b6ce24ca?w=500&q=80','https://images.unsplash.com/photo-1543362906-acfc16c67564?w=500&q=80'] %}
+
+<div class="page-banner">
+  <div class="container">
+    <div class="breadcrumb"><a href="{{ url_for('home') }}">Home</a><span>›</span><span>Marketplace</span></div>
+    <h1>🛒 Market Connect</h1>
+    <p>Buy fresh, organic produce directly from verified farmers worldwide.</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="container">
+    <div class="filter-bar-inner">
+      <form method="GET" style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap">
+        <div class="search-bar-wrap" style="max-width:320px">
+          <input type="text" name="search" value="{{ search }}" placeholder="Search products..." aria-label="Search products">
+          <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          {% for cat in ['all','Grains','Vegetables','Spices','Fruits','Pulses','Organic Products'] %}
+          <a href="{{ url_for('marketplace', category=cat, search=search) }}" class="filter-btn {% if category==cat %}active{% endif %}">{{ 'All' if cat=='all' else cat }}</a>
+          {% endfor %}
+        </div>
+      </form>
+      {% if user %}<a href="{{ url_for('add_product') }}" class="btn btn-primary btn-sm" style="white-space:nowrap">+ List Product</a>{% endif %}
+    </div>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    {% if products.items %}
+    <div class="market-grid">
+      {% for product in products.items %}
+      {% set fallback = fallback_imgs[loop.index0 % fallback_imgs|length] %}
+      {% set img_src = get_img_url(product.image, fallback) %}
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;transition:all var(--transition)">
+        <a href="{{ url_for('product_detail', product_id=product.id) }}" style="text-decoration:none;flex:1">
+          <div class="market-card-img-wrap">
+            <img src="{{ img_src }}" alt="{{ product.name }}" class="market-card-img" loading="lazy"
+                 onerror="this.src='{{ fallback }}'">
+            <div class="stock-badge">
+              <span class="badge {% if product.stock > 0 %}badge-green{% else %}badge-error{% endif %}">
+                {{ 'In Stock' if product.stock > 0 else 'Out of Stock' }}
+              </span>
+            </div>
+          </div>
+          <div class="market-card-body">
+            <p class="market-product-name">{{ product.name }}</p>
+            <div class="market-seller">🧑🌾 {{ product.seller.full_name }}</div>
+            <div class="market-location">📍 {{ product.seller.location or 'India' }}</div>
+            <div class="market-footer">
+              <div>
+                <span class="market-price">₹{{ "%.0f"|format(product.price) }}</span>
+                <span class="market-unit"> / {{ product.unit }}</span>
+              </div>
+              <span class="btn btn-secondary btn-sm" style="pointer-events:none">View Details</span>
+            </div>
+          </div>
+        </a>
+        {% if user and user.id == product.seller_id %}
+        <div style="display:flex;gap:8px;padding:0 16px 14px;align-items:stretch">
+          <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-secondary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">✏️ Edit</a>
+          <form method="POST" action="{{ url_for('delete_product', product_id=product.id) }}" onsubmit="return confirm('Delete this product?')" style="flex:1;display:flex">
+            <button type="submit" class="btn btn-danger btn-sm" style="flex:1;justify-content:center">🗑 Delete</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if products.pages > 1 %}
+    <div class="pagination">
+      {% if products.has_prev %}<a href="{{ url_for('marketplace', page=products.prev_num, category=category, search=search) }}" class="page-btn">‹</a>{% endif %}
+      {% for p in products.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+        {% if p %}<a href="{{ url_for('marketplace', page=p, category=category, search=search) }}" class="page-btn {% if p==products.page %}active{% endif %}">{{ p }}</a>
+        {% else %}<span class="page-btn" style="border:none;pointer-events:none">…</span>{% endif %}
+      {% endfor %}
+      {% if products.has_next %}<a href="{{ url_for('marketplace', page=products.next_num, category=category, search=search) }}" class="page-btn">›</a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <h3>No products found</h3>
+      <p>Try a different category or search term.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

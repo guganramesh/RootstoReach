@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Add Product{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Add Product</h1><p>List your agricultural product on the marketplace.</p></div>
+      <a href="{{ url_for('marketplace') }}" class="btn btn-outline btn-sm">← Marketplace</a>
+    </div>
+    <div class="share-layout">
+      <div>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Product Name *</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g., Basmati Rice Organic" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select name="category" class="form-control" required>
+                  <option value="">Select category</option>
+                  {% for cat in ['Grains','Vegetables','Spices','Fruits','Pulses','Organic Products','Dairy','Herbs'] %}
+                  <option value="{{ cat }}">{{ cat }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="4" placeholder="Describe your product quality, origin, and features..."></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Price (₹) *</label>
+                <input type="number" name="price" class="form-control" placeholder="e.g., 45" min="1" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Unit</label>
+                <select name="unit" class="form-control">
+                  {% for u in ['kg','quintal','piece','dozen','litre','gram','bundle'] %}
+                  <option value="{{ u }}">{{ u }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Available Stock</label>
+              <input type="number" name="stock" class="form-control" placeholder="e.g., 500" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Product Image</label>
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-zone-icon">📷</div>
+                <p>Upload Product Image</p>
+                <span>Click or drag & drop</span>
+                <input type="file" name="image" id="imageUpload" accept="image/*" style="display:none">
+              </div>
+              <div class="upload-preview" id="uploadPreview"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">List Product</button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <div class="share-tips-card">
+          <h4>📦 Listing Tips</h4>
+          <div class="share-tip-item">Use clear, high-quality photos.</div>
+          <div class="share-tip-item">Set competitive pricing.</div>
+          <div class="share-tip-item">Mention organic certifications.</div>
+          <div class="share-tip-item">Describe storage & freshness.</div>
+          <div class="share-tip-item">Update stock regularly.</div>
+          <div class="share-illustration">🌾</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Contact Messages — Admin{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar-wrap">
+        <div class="sidebar-avatar">A</div>
+        <div><p class="sidebar-user-name">{{ user.full_name }}</p><span class="sidebar-user-role">Admin</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+      <a href="{{ url_for('admin_users') }}" class="sidebar-link"><span class="link-icon">👥</span> Manage Users</a>
+      <a href="{{ url_for('admin_contacts') }}" class="sidebar-link active"><span class="link-icon">📩</span> Contact Messages</a>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link"><span class="link-icon">🏠</span> Main Dashboard</a>
+    </nav>
+    <div class="sidebar-logout-wrap">
+      <a href="{{ url_for('logout') }}" class="sidebar-logout"><span>🚪</span> Logout</a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div>
+        <h1>Contact Messages</h1>
+        <p>{{ msgs|length }} total messages — {{ msgs|selectattr('is_read','equalto',False)|list|length }} unread</p>
+      </div>
+    </div>
+    <div class="admin-panel">
+      {% if msgs %}
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Status</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Received</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% for m in msgs %}
+            <tr style="{% if not m.is_read %}background:rgba(46,125,50,0.04){% endif %}">
+              <td>
+                <span class="badge {% if m.is_read %}badge-secondary{% else %}badge-green{% endif %}">
+                  {{ 'Read' if m.is_read else 'New' }}
+                </span>
+              </td>
+              <td style="font-weight:{% if not m.is_read %}700{% else %}400{% endif %}">{{ m.name }}</td>
+              <td><a href="mailto:{{ m.email }}" style="color:var(--primary)">{{ m.email }}</a></td>
+              <td>{{ m.subject or '—' }}</td>
+              <td style="max-width:280px">
+                <p style="font-size:13px;color:var(--text-secondary);white-space:normal;line-height:1.5">{{ m.message[:150] }}{% if m.message|length > 150 %}...{% endif %}</p>
+              </td>
+              <td style="font-size:13px;white-space:nowrap">{{ m.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+              <td>
+                {% if not m.is_read %}
+                <form method="POST" action="{{ url_for('admin_mark_read', msg_id=m.id) }}">
+                  <button type="submit" class="btn btn-success btn-sm">Mark Read</button>
+                </form>
+                {% else %}
+                <span style="font-size:12px;color:var(--text-secondary)">Done</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:48px">
+        <div class="empty-icon">📩</div>
+        <h3>No contact messages yet</h3>
+        <p>Messages from the contact form will appear here.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

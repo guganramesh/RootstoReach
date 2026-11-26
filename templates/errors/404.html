@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px">
+  <div>
+    <div style="font-size:80px;margin-bottom:16px">🌿</div>
+    <h1 style="font-size:5rem;color:var(--primary);font-weight:700">404</h1>
+    <h2 style="margin-bottom:12px">Page Not Found</h2>
+    <p style="color:var(--text-secondary);max-width:400px;margin:0 auto 32px">The page you're looking for seems to have wandered off into the fields.</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Go Home</a>
+      <a href="{{ url_for('knowledge_hub') }}" class="btn btn-secondary btn-lg">Knowledge Hub</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

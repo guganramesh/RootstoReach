@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar-wrap">
+        <div class="sidebar-avatar">A</div>
+        <div><p class="sidebar-user-name">{{ user.full_name }}</p><span class="sidebar-user-role">Admin</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+      <a href="{{ url_for('admin_users') }}" class="sidebar-link active"><span class="link-icon">👥</span> Manage Users</a>
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link"><span class="link-icon">🏠</span> Main Dashboard</a>
+    </nav>
+    <div class="sidebar-logout-wrap">
+      <a href="{{ url_for('logout') }}" class="sidebar-logout"><span>🚪</span> Logout</a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Manage Users</h1><p>{{ users|length }} total users registered.</p></div>
+    </div>
+    <div class="admin-panel">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Location</th><th>Skills</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td><div class="product-cell"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700">{{ u.full_name[0] }}</div><div><p style="font-weight:600;font-size:14px">{{ u.full_name }}</p><p style="font-size:12px;color:var(--text-secondary)">{{ u.phone or '—' }}</p></div></div></td>
+              <td style="font-size:13px">{{ u.email }}</td>
+              <td><span class="badge badge-green">{{ u.role.title() }}</span></td>
+              <td style="font-size:13px">{{ u.location or '—' }}</td>
+              <td style="font-size:12px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.skills or '—' }}</td>
+              <td style="font-size:13px">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+              <td><span class="badge {% if u.is_active %}badge-success{% else %}badge-error{% endif %}">{{ 'Active' if u.is_active else 'Inactive' }}</span></td>
+              <td>
+                <form method="POST" action="{{ url_for('admin_toggle_user', uid=u.id) }}">
+                  <button type="submit" class="btn {% if u.is_active %}btn-danger{% else %}btn-success{% endif %} btn-sm">{{ 'Deactivate' if u.is_active else 'Activate' }}</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

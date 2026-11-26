@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}My Products{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>My Products</h1><p>Manage your listed products in Market Connect.</p></div>
+      <a href="{{ url_for('add_product') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
+    </div>
+    {% if products %}
+    {% set fallback_imgs = ['https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80','https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80','https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=500&q=80','https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&q=80'] %}
+    <div class="post-grid">
+      {% for product in products %}
+      <div class="post-card">
+        <div class="post-card-img-wrap">
+          <img src="{{ get_img_url(product.image, fallback_imgs[loop.index0 % fallback_imgs|length]) }}" alt="{{ product.name }}" class="post-card-img" loading="lazy">
+        </div>
+        <div class="post-card-body">
+          <span class="post-category-tag">{{ product.category }}</span>
+          <h3 class="post-title">{{ product.name }}</h3>
+          <div style="display:flex;gap:12px;font-size:13px;margin:8px 0;color:var(--text-secondary)">
+            <span>₹{{ "%.0f"|format(product.price) }} / {{ product.unit }}</span>
+            <span class="badge {% if product.stock > 0 %}badge-green{% else %}badge-error{% endif %}">{{ 'In Stock' if product.stock > 0 else 'Out of Stock' }}</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">{{ (product.description or '')[:80] }}...</p>
+          <div style="display:flex;gap:8px;align-items:stretch">
+            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-secondary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">View</a>
+            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('delete_product', product_id=product.id) }}" onsubmit="return confirm('Delete this product?')" style="flex:1;display:flex">
+              <button type="submit" class="btn btn-danger btn-sm" style="flex:1;justify-content:center">🗑 Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <h3>No products listed yet</h3>
+      <p>Start selling your farm produce on the marketplace!</p>
+      <a href="{{ url_for('add_product') }}" class="btn btn-primary" style="margin-top:16px">List First Product</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Edit Knowledge{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  {% include '_sidebar.html' %}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <main class="dashboard-main">
+    <div class="dash-header">
+      <div><h1>Edit Knowledge</h1><p>Update your farming knowledge post.</p></div>
+      <a href="{{ url_for('knowledge_detail', post_id=post.id) }}" class="btn btn-outline btn-sm">← Back</a>
+    </div>
+    <div class="share-layout">
+      <div>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px">
+            <div class="form-group">
+              <label class="form-label">Title <span style="color:var(--error)">*</span></label>
+              <input type="text" name="title" class="form-control" value="{{ post.title }}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category <span style="color:var(--error)">*</span></label>
+              <select name="category" class="form-control" required>
+                {% for cat in ['Organic Farming','Irrigation','Soil Management','Crop Care','Pest Control','Seed Saving','Sustainable Farming','Water Conservation','Traditional Farming','Crop Rotation'] %}
+                <option value="{{ cat }}" {% if post.category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description <span style="color:var(--error)">*</span></label>
+              <textarea name="description" class="form-control" rows="5" required>{{ post.description }}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Materials Needed</label>
+              <input type="text" name="materials" class="form-control" value="{{ post.materials or '' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Step-by-Step Guide</label>
+              <textarea name="steps" class="form-control" rows="6">{{ post.steps or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tips & Best Practices</label>
+              <textarea name="tips" class="form-control" rows="4">{{ post.tips or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Replace Image (Optional)</label>
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-zone-icon">📷</div>
+                <p>Upload New Image</p>
+                <span>Leave empty to keep current image</span>
+                <input type="file" name="image" id="imageUpload" accept="image/*" style="display:none">
+              </div>
+              <div class="upload-preview" id="uploadPreview"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">Save Changes</button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <div class="share-tips-card">
+          <h4>💡 Edit Tips</h4>
+          <div class="share-tip-item">Keep your content accurate and helpful.</div>
+          <div class="share-tip-item">Update steps if you learned better methods.</div>
+          <div class="share-tip-item">Leave image blank to keep the existing one.</div>
+          <div class="share-illustration">🌾</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+{% endblock %}
+{% block footer %}{% endblock %}
