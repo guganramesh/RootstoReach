@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Roots to Reach – Digitally Empowering Traditional Farming">
+  <title>{% block title %}Roots to Reach{% endblock %} | Empowering Farmers</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- ─── Navbar ─── -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="navbar-inner">
+        <a href="{{ url_for('home') }}" class="navbar-brand" aria-label="Roots to Reach Home">
+          <span class="brand-icon">🌱</span>
+          <span>Roots to Reach</span>
+        </a>
+        <ul class="navbar-nav" role="list">
+          <li><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint=='home' %}active{% endif %}">Home</a></li>
+          <li><a href="{{ url_for('knowledge_hub') }}" class="nav-link {% if request.endpoint in ['knowledge_hub','knowledge_detail'] %}active{% endif %}">Knowledge Hub</a></li>
+          <li><a href="{{ url_for('marketplace') }}" class="nav-link {% if request.endpoint in ['marketplace','product_detail'] %}active{% endif %}">Market Connect</a></li>
+          <li><a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint=='about' %}active{% endif %}">About Us</a></li>
+          <li><a href="{{ url_for('contact') }}" class="nav-link {% if request.endpoint=='contact' %}active{% endif %}">Contact</a></li>
+        </ul>
+        <div class="navbar-actions">
+          {% if user %}
+            <a href="{{ url_for('dashboard') }}" class="notif-btn" aria-label="Notifications">
+              🔔
+              <span class="notif-badge" id="notifBadge" style="display:none"></span>
+            </a>
+            <div class="user-menu">
+              <button class="user-menu-btn" id="userMenuBtn" aria-haspopup="true" aria-expanded="false">
+                <div class="user-avatar-text">{{ user.full_name[0].upper() }}</div>
+                <span>{{ user.full_name.split()[0] }}</span>
+                <span>▾</span>
+              </button>
+              <div class="dropdown-menu" id="userDropdown" role="menu">
+                <a href="{{ url_for('dashboard') }}" class="dropdown-item" role="menuitem">📊 Dashboard</a>
+                <a href="{{ url_for('profile', user_id=user.id) }}" class="dropdown-item" role="menuitem">👤 My Profile</a>
+                <a href="{{ url_for('my_knowledge') }}" class="dropdown-item" role="menuitem">📚 My Knowledge</a>
+                <a href="{{ url_for('orders') }}" class="dropdown-item" role="menuitem">📦 Orders</a>
+                <a href="{{ url_for('messages') }}" class="dropdown-item" role="menuitem">💬 Messages</a>
+                <a href="{{ url_for('settings') }}" class="dropdown-item" role="menuitem">⚙️ Settings</a>
+                {% if user.role == 'admin' %}<a href="{{ url_for('admin_dashboard') }}" class="dropdown-item" role="menuitem">🛡 Admin</a>{% endif %}
+                <div class="dropdown-divider"></div>
+                <a href="{{ url_for('logout') }}" class="dropdown-item danger" role="menuitem">🚪 Logout</a>
+              </div>
+            </div>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Log In</a>
+            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
+          {% endif %}
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile nav -->
+    <div class="mobile-nav" id="mobileNav" role="navigation">
+      <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+      <a href="{{ url_for('knowledge_hub') }}" class="nav-link">Knowledge Hub</a>
+      <a href="{{ url_for('marketplace') }}" class="nav-link">Market Connect</a>
+      <a href="{{ url_for('about') }}" class="nav-link">About Us</a>
+      <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+      {% if user %}
+        <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="nav-link" style="color:var(--error)">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-sm" style="margin:8px 0">Sign Up</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ─── Flash Messages ─── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="position:fixed;top:76px;right:16px;z-index:9999;width:360px;max-width:calc(100vw - 32px)">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category=='success' else 'error' if category=='error' else 'warning' if category=='warning' else 'info' }}" role="alert">
+            <span>{{ '✅' if category=='success' else '❌' if category=='error' else '⚠️' if category=='warning' else 'ℹ️' }}</span>
+            {{ message }}
+            <span class="alert-close" role="button" aria-label="Close">×</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ─── Main Content ─── -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ─── Footer ─── -->
+  {% block footer %}
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">🌱 Roots to Reach</div>
+          <p class="footer-desc">Empowering farmers. Connecting the world. Building a sustainable future together.</p>
+          <div class="footer-social">
+            <a href="#" class="social-link" aria-label="Facebook">f</a>
+            <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
+            <a href="#" class="social-link" aria-label="Instagram">📸</a>
+            <a href="#" class="social-link" aria-label="YouTube">▶</a>
+            <a href="#" class="social-link" aria-label="LinkedIn">in</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('knowledge_hub') }}">Knowledge Hub</a>
+            <a href="{{ url_for('marketplace') }}">Market Connect</a>
+            <a href="{{ url_for('about') }}">About Us</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <div class="footer-links">
+            <a href="#">Blog</a>
+            <a href="{{ url_for('contact') }}">Help & Support</a>
+            <a href="#">Guidelines</a>
+            <a href="#">Community</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms & Conditions</a>
+          </div>
+          <h4 style="margin-top:20px">Follow Us</h4>
+          <p style="font-size:13px;margin-top:8px">Stay connected with our farming community worldwide.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Roots to Reach. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+
+  <!-- Scroll to top -->
+  <button id="scrollTop" aria-label="Scroll to top">↑</button>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
